@@ -2,6 +2,16 @@
 
 A personal planner: quick-capture checklist, month calendar, and a 14-day runway that shows the shape of your workload before you read a single task.
 
+One file, no build step, no dependencies beyond Google Fonts.
+
+## Deploy to GitHub Pages
+
+1. Create a new repo. Name it `yourusername.github.io` if you want it at the root domain, or anything else for a subpath.
+2. Drop `index.html` in the root of the repo and push.
+3. Go to **Settings → Pages**.
+4. Under **Source**, pick **Deploy from a branch**, then `main` and `/ (root)`. Save.
+5. Wait about a minute. It goes live at `https://yourusername.github.io` or `https://yourusername.github.io/reponame`.
+
 ## Using it
 
 **Quick add.** Type in the box at the top and the parser pulls out the details:
@@ -40,6 +50,26 @@ The palette is the deadline system, not decoration:
 - amber = due today
 - periwinkle = due this week
 - slate = later
+
+## Schedule blocks
+
+Tasks have deadlines. Schedule blocks are the other thing: work shifts, classes, practice, anything that occupies a stretch of time and repeats.
+
+Open the **Week** view and click **Add a schedule block**, or click any empty spot in the grid to start one right there.
+
+- **Which days** is a row of seven toggles, so any combination works. Mon Tue Thu Fri is two clicks, or use the shortcut button for it.
+- **Single date** is for one-offs. Leave all seven day toggles off and pick a date instead.
+- **Active from / until** bounds a block to a date range. Set a class to end in December and it stops appearing in January instead of repeating forever.
+
+## Week view
+
+Seven columns, one per day, with your blocks drawn as time slabs and any task that has a clock time pinned at its hour. Tasks with a date but no time sit in the all-day row across the top.
+
+The dashed regions are your open stretches, meaning anything thirty minutes or longer between commitments. The row along the bottom totals free time per day. A red line marks the current time on today's column.
+
+The grid auto-fits to whatever you actually have scheduled, so a 7am shift or a 10pm class pulls the window open rather than getting clipped.
+
+Blocks appear in the month calendar too, and clicking a day there lists that day's schedule with its free total.
 
 ## Your data
 

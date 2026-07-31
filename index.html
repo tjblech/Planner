@@ -34,6 +34,9 @@
   --accent:#8CA4FF;
   --accent-ink:#0A1024;
 
+  --ev1:#8CA4FF; --ev2:#FFB238; --ev3:#FF6B7C;
+  --ev4:#5FD3B4; --ev5:#B98CFF; --ev6:#7C8AB0;
+
   --r-sm:7px; --r-md:11px; --r-lg:16px; --r-xl:22px;
   --shadow:0 18px 46px -22px rgba(0,0,0,.85);
   --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
@@ -60,6 +63,9 @@
   --accent:#3E5BD0;
   --accent-ink:#FFFFFF;
   --shadow:0 16px 40px -26px rgba(19,32,64,.45);
+
+  --ev1:#3E5BD0; --ev2:#B87400; --ev3:#D93B52;
+  --ev4:#0F8C6E; --ev5:#7442C4; --ev6:#5A6A8E;
 }
 
 *{box-sizing:border-box}
@@ -486,6 +492,72 @@ pre.sql{
 .group-act:hover{color:var(--text);border-color:var(--accent)}
 .chip-rep{color:var(--dim);background:var(--panel-2)}
 
+/* ---------- week view ---------- */
+.wk-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.wk-bar h2{font-family:var(--display);font-size:19px;font-weight:600;letter-spacing:-.02em;margin:0}
+.wk-bar .calnav{margin-left:auto}
+.wk-scroll{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);overflow-x:auto}
+.wk-inner{min-width:660px}
+.wk-row{display:grid;grid-template-columns:48px repeat(7,minmax(0,1fr))}
+.wk-head{border-bottom:1px solid var(--line-soft)}
+.wk-head > div{padding:9px 4px;text-align:center}
+.wk-hd-dow{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.wk-hd-num{font-family:var(--display);font-size:15px;font-weight:600;line-height:1.25}
+.wk-head .is-today .wk-hd-num,.wk-head .is-today .wk-hd-dow{color:var(--today)}
+.wk-allday{border-bottom:1px solid var(--line-soft);min-height:28px}
+.wk-lbl{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:7px 6px 0 0;text-align:right}
+.wk-allday .cell{padding:4px;display:flex;flex-direction:column;gap:2px;border-left:1px solid var(--line-soft);min-width:0}
+.wk-hours{position:relative}
+.wk-hours span{position:absolute;right:7px;font-family:var(--mono);font-size:9.5px;color:var(--faint);transform:translateY(-50%);white-space:nowrap}
+.wk-col{position:relative;border-left:1px solid var(--line-soft);min-width:0}
+.wk-col.is-weekend{background:color-mix(in srgb,var(--panel-2) 50%,transparent)}
+.wk-col:hover{background:color-mix(in srgb,var(--panel-2) 70%,transparent)}
+.wk-line{position:absolute;left:0;right:0;border-top:1px solid var(--line-soft);pointer-events:none}
+.wk-ev{
+  position:absolute;border-radius:5px;padding:3px 5px;overflow:hidden;text-align:left;
+  background:color-mix(in srgb,currentColor 22%,var(--panel));
+  box-shadow:inset 2.5px 0 0 currentColor;z-index:2;
+}
+.wk-ev:hover{background:color-mix(in srgb,currentColor 34%,var(--panel))}
+.wk-ev b{display:block;font-weight:600;color:var(--text);font-size:10.5px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wk-ev i{font-style:normal;font-family:var(--mono);font-size:9px;opacity:.85;white-space:nowrap}
+.wk-ev.is-task{box-shadow:inset 2.5px 0 0 currentColor,0 0 0 1px color-mix(in srgb,currentColor 30%,transparent)}
+.wk-ev.is-task b{text-decoration:none}
+.wk-free{
+  position:absolute;border-radius:5px;display:grid;place-items:center;pointer-events:none;z-index:1;
+  border:1px dashed color-mix(in srgb,var(--soon) 30%,transparent);
+}
+.wk-free span{font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:color-mix(in srgb,var(--soon) 80%,transparent)}
+.wk-now{position:absolute;left:0;right:0;height:0;border-top:1.5px solid var(--overdue);z-index:4;pointer-events:none}
+.wk-now::before{content:"";position:absolute;left:-3px;top:-4px;width:7px;height:7px;border-radius:50%;background:var(--overdue)}
+.wk-foot{border-top:1px solid var(--line-soft)}
+.wk-foot .cell{padding:7px 4px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--dim);border-left:1px solid var(--line-soft)}
+.wk-foot .cell b{color:var(--soon);font-weight:500}
+
+/* ---------- schedule blocks ---------- */
+.dayset{display:flex;gap:4px}
+.dayset button{
+  flex:1;padding:9px 0;border-radius:var(--r-sm);border:1px solid var(--line);
+  font-family:var(--mono);font-size:11px;color:var(--faint);transition:background .14s,color .14s,border-color .14s;
+}
+.dayset button:hover{border-color:var(--accent);color:var(--text)}
+.dayset button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.swatches{display:flex;gap:6px}
+.swatches button{width:26px;height:26px;border-radius:7px;border:2px solid transparent}
+.swatches button[aria-pressed="true"]{border-color:var(--text)}
+.ev-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line-soft);width:100%;text-align:left}
+.ev-row:first-of-type{border-top:0}
+.ev-row:hover .ev-info b{color:var(--accent)}
+.ev-swatch{width:3px;align-self:stretch;min-height:28px;border-radius:2px;flex:none}
+.ev-info{flex:1;min-width:0}
+.ev-info b{display:block;font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev-info span{font-family:var(--mono);font-size:10px;color:var(--faint)}
+.cal-ev.is-ev{background:transparent;box-shadow:inset 2.5px 0 0 currentColor;padding-left:8px;color:var(--dim)}
+.cal-ev.btn{width:100%;text-align:left;display:block}
+.quick-days{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.quick-days button{font-family:var(--mono);font-size:10.5px;color:var(--faint);border:1px solid var(--line);border-radius:20px;padding:3px 10px}
+.quick-days button:hover{color:var(--text);border-color:var(--accent)}
+
 /* ---------- mobile ---------- */
 .rail-toggle{display:none}
 @media (max-width:1080px){
@@ -604,6 +676,7 @@ pre.sql{
       <div class="stack">
         <div id="listPane"></div>
         <div id="calPane" hidden></div>
+        <div id="weekPane" hidden></div>
       </div>
 
       <aside class="side">
@@ -764,6 +837,72 @@ create policy "own rows" on public.tasks
   </div>
 </div>
 
+<!-- ============ SCHEDULE BLOCK EDITOR ============ -->
+<div class="sheet" id="evSheet">
+  <div class="sheet-box" role="dialog" aria-label="Schedule block">
+    <div class="sheet-head">
+      <h3 id="evHeading">Schedule block</h3>
+      <button class="drawer-close" id="evClose" aria-label="Close">×</button>
+    </div>
+    <div class="sheet-body">
+      <div class="field">
+        <label for="evTitle">What is it</label>
+        <input class="input" id="evTitle" type="text" placeholder="Work, CS 3500 lecture, gym">
+      </div>
+
+      <div class="field">
+        <label>Which days</label>
+        <div class="dayset" id="evDays"></div>
+        <div class="quick-days">
+          <button data-quick="1,2,3,4,5">Weekdays</button>
+          <button data-quick="1,2,4,5">Mon Tue Thu Fri</button>
+          <button data-quick="0,6">Weekends</button>
+          <button data-quick="">None</button>
+        </div>
+        <p class="hint" style="margin-top:2px">Pick days and it repeats every week. Pick none and it happens once, on the date below.</p>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="evStart">Starts</label>
+          <input class="input" id="evStart" type="time" value="09:00">
+        </div>
+        <div class="field">
+          <label for="evEnd">Ends</label>
+          <input class="input" id="evEnd" type="time" value="17:00">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="evDate">Single date (only if no days are picked)</label>
+        <input class="input" id="evDate" type="date">
+      </div>
+
+      <div class="field">
+        <label>Color</label>
+        <div class="swatches" id="evColors"></div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="evFrom">Active from (optional)</label>
+          <input class="input" id="evFrom" type="date">
+        </div>
+        <div class="field">
+          <label for="evUntil">Active until (optional)</label>
+          <input class="input" id="evUntil" type="date">
+        </div>
+      </div>
+      <p class="hint" style="margin-top:-6px">Use these for a semester. A class that ends in December stops showing up in January.</p>
+
+      <div class="btn-row" style="margin-top:4px">
+        <button class="composer-add" id="evSave" style="flex:1">Save block</button>
+        <button class="ghost danger" id="evDelete">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"><span id="toastMsg"></span><button id="toastUndo" hidden>Undo</button></div>
 <input type="file" id="fileInput" accept="application/json" hidden>
 
@@ -841,6 +980,85 @@ function urgency(task){
   return "later";
 }
 const URG_VAR = { overdue:"var(--overdue)", today:"var(--today)", soon:"var(--soon)", later:"var(--later)", none:"var(--faint)", done:"var(--done)" };
+
+/* ============================================================
+   TIME-OF-DAY MATH  (minutes past midnight)
+   ============================================================ */
+const toMin = t => { const p = String(t || "0:0").split(":"); return (+p[0]) * 60 + (+p[1] || 0); };
+const fromMin = m => pad(Math.floor(m/60) % 24) + ":" + pad(m % 60);
+function durLabel(m){
+  if (m <= 0) return "0m";
+  const h = Math.floor(m/60), mm = m % 60;
+  return h && mm ? h + "h " + mm + "m" : h ? h + "h" : mm + "m";
+}
+function fmtHour(m){
+  const h = Math.floor(m/60) % 24;
+  const ap = h >= 12 ? "p" : "a";
+  return (h % 12 === 0 ? 12 : h % 12) + ap;
+}
+
+/* Which schedule blocks are active on a given day. */
+function eventsOn(k){
+  const dow = parseKey(k).getDay();
+  return state.events.filter(e => {
+    if (e.from  && k < e.from)  return false;
+    if (e.until && k > e.until) return false;
+    if (e.days && e.days.length) return e.days.indexOf(dow) >= 0;
+    return e.date === k;
+  }).sort((a,b) => toMin(a.start) - toMin(b.start));
+}
+
+/* Open stretches between commitments, inside a window of minutes. */
+function freeGaps(k, winStart, winEnd){
+  const busy = eventsOn(k)
+    .map(e => [toMin(e.start), toMin(e.end)])
+    .concat(state.tasks
+      .filter(t => !t.done && t.due === k && t.time)
+      .map(t => { const s = toMin(t.time); return [s, s + 30]; }))
+    .filter(p => p[1] > p[0])
+    .sort((a,b) => a[0] - b[0]);
+
+  const merged = [];
+  busy.forEach(p => {
+    const last = merged[merged.length - 1];
+    if (last && p[0] <= last[1]) last[1] = Math.max(last[1], p[1]);
+    else merged.push([p[0], p[1]]);
+  });
+
+  const gaps = [];
+  let cur = winStart;
+  merged.forEach(p => {
+    if (p[0] > cur) gaps.push([cur, Math.min(p[0], winEnd)]);
+    cur = Math.max(cur, p[1]);
+  });
+  if (cur < winEnd) gaps.push([cur, winEnd]);
+  return gaps.filter(g => g[1] - g[0] >= 30);
+}
+
+/* Side-by-side lanes for overlapping blocks, clustered so one long
+   block doesn't squeeze the whole day. */
+function layout(items){
+  const s = items.slice().sort((a,b) => a.s - b.s || a.e - b.e);
+  const clusters = [];
+  let cur = [], curEnd = -1;
+  s.forEach(it => {
+    if (cur.length && it.s >= curEnd){ clusters.push(cur); cur = []; curEnd = -1; }
+    cur.push(it);
+    curEnd = Math.max(curEnd, it.e);
+  });
+  if (cur.length) clusters.push(cur);
+  clusters.forEach(cl => {
+    const ends = [];
+    cl.forEach(it => {
+      let li = -1;
+      for (let i = 0; i < ends.length; i++) if (ends[i] <= it.s){ li = i; break; }
+      if (li < 0){ ends.push(it.e); li = ends.length - 1; } else ends[li] = it.e;
+      it.lane = li;
+    });
+    cl.forEach(it => { it.lanes = ends.length; });
+  });
+  return s;
+}
 
 /* ============================================================
    NATURAL LANGUAGE PARSER
@@ -995,15 +1213,18 @@ function repeatLabel(rep){
    ============================================================ */
 let state = {
   tasks: [],
+  events: [],
   tomb: [],
   view: "today",
   query: "",
   project: null,
   day: null,
   cal: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+  wk: addDays(new Date(), -new Date().getDay()),
   showDone: false,
   theme: "dark",
-  openId: null
+  openId: null,
+  openEv: null
 };
 
 const uid = () => Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-3);
@@ -1019,7 +1240,7 @@ function persist(){
     // tombstones older than 60 days have long since propagated
     const cut = Date.now() - 60*86400000;
     state.tomb = state.tomb.filter(x => x.updated > cut);
-    Store.save(KEY, { tasks: state.tasks, tomb: state.tomb, theme: state.theme, showDone: state.showDone });
+    Store.save(KEY, { tasks: state.tasks, events: state.events, tomb: state.tomb, theme: state.theme, showDone: state.showDone });
     queueSync();
   }, 180);
 }
@@ -1086,6 +1307,7 @@ function renderHeader(){
 const VIEWS = [
   { id:"today",    label:"Today"    },
   { id:"upcoming", label:"Upcoming" },
+  { id:"week",     label:"Week"     },
   { id:"calendar", label:"Calendar" },
   { id:"all",      label:"All tasks"},
   { id:"done",     label:"Done"     }
@@ -1226,8 +1448,10 @@ function emptyBlock(title, body, withSeed){
 function renderList(){
   const pane = $("listPane");
   const cal  = $("calPane");
-  if (state.view === "calendar"){ pane.hidden = true; cal.hidden = false; renderCalendar(); return; }
-  pane.hidden = false; cal.hidden = true;
+  const wk   = $("weekPane");
+  if (state.view === "calendar"){ pane.hidden = true; wk.hidden = true; cal.hidden = false; renderCalendar(); return; }
+  if (state.view === "week"){ pane.hidden = true; cal.hidden = true; wk.hidden = false; renderWeek(); return; }
+  pane.hidden = false; cal.hidden = true; wk.hidden = true;
 
   const all = visible();
   const open = all.filter(t => !t.done);
@@ -1340,7 +1564,11 @@ function renderCalendar(){
     const k = key(d);
     const out = d.getMonth() !== state.cal.getMonth();
     const day = list.filter(t => t.due === k).sort(sortTasks);
-    const shown = day.slice(0,3);
+    const evs = eventsOn(k);
+    const shownEv = evs.slice(0,2);
+    const room = Math.max(0, 3 - shownEv.length);
+    const shownT = day.slice(0, room);
+    const hidden = (evs.length - shownEv.length) + (day.length - shownT.length);
     const cls = ["cal-cell"];
     if (out) cls.push("out");
     if (k === tk) cls.push("is-today");
@@ -1348,8 +1576,9 @@ function renderCalendar(){
 
     cells += '<button class="' + cls.join(" ") + '" data-cell="' + k + '">' +
       '<span class="cal-num">' + d.getDate() + "</span>" +
-      shown.map(t => '<span class="cal-ev' + (t.done ? " done" : "") + '" style="color:' + URG_VAR[urgency(t)] + '">' + esc(t.title) + "</span>").join("") +
-      (day.length > 3 ? '<span class="cal-more">+' + (day.length - 3) + " more</span>" : "") +
+      shownEv.map(e => '<span class="cal-ev is-ev" style="color:var(--' + e.color + ')">' + esc(e.title) + "</span>").join("") +
+      shownT.map(t => '<span class="cal-ev' + (t.done ? " done" : "") + '" style="color:' + URG_VAR[urgency(t)] + '">' + esc(t.title) + "</span>").join("") +
+      (hidden > 0 ? '<span class="cal-more">+' + hidden + " more</span>" : "") +
       "</button>";
   }
 
@@ -1357,11 +1586,21 @@ function renderCalendar(){
     ? (() => {
         const d = parseKey(state.day);
         const items = list.filter(t => t.due === state.day).sort(sortTasks);
+        const evs = eventsOn(state.day);
+        const free = freeGaps(state.day, 8*60, 22*60).reduce((a,g) => a + (g[1]-g[0]), 0);
+        const sched = evs.length
+          ? '<div class="card" style="margin-top:18px"><div class="card-title">Scheduled that day · ' + durLabel(free) + ' free between 8a and 10p</div>' +
+            evs.map(e => '<button class="ev-row" data-evedit="' + e.id + '">' +
+              '<i class="ev-swatch" style="background:var(--' + e.color + ')"></i>' +
+              '<span class="ev-info"><b>' + esc(e.title) + "</b><span>" +
+              fmtTime(e.start) + " to " + fmtTime(e.end) + " · " + durLabel(toMin(e.end) - toMin(e.start)) +
+              "</span></span></button>").join("") + "</div>"
+          : "";
         return '<div style="margin-top:18px">' +
           groupBlock(DOW[d.getDay()] + " " + MON[d.getMonth()] + " " + d.getDate(),
             URG_VAR[diffDays(state.day,tk) < 0 ? "overdue" : diffDays(state.day,tk) === 0 ? "today" : "soon"], items) +
-          (items.length ? "" : '<div class="empty" style="padding:22px"><p style="margin:0">Nothing on this day. Drag a task here to schedule it.</p></div>') +
-          "</div>";
+          (items.length ? "" : '<div class="empty" style="padding:22px"><p style="margin:0">No tasks this day. Drag one here to schedule it.</p></div>') +
+          sched + "</div>";
       })()
     : "";
 
@@ -1388,7 +1627,179 @@ function renderCalendar(){
     c.onclick = () => { state.day = state.day === c.dataset.cell ? null : c.dataset.cell; render(); };
     wireDrop(c, c.dataset.cell);
   });
+  cal.querySelectorAll("[data-evedit]").forEach(b => { b.onclick = () => openEvent(b.dataset.evedit); });
   wireTasks(cal);
+}
+
+/* ============================================================
+   RENDER: week view
+   ============================================================ */
+const PX_PER_HOUR = 46;
+
+function renderWeek(){
+  const pane = $("weekPane");
+  const days = [];
+  for (let i = 0; i < 7; i++) days.push(key(addDays(state.wk, i)));
+  const tk = todayKey();
+  const shown = visible().filter(t => state.showDone || !t.done);
+
+  // fit the window to whatever is actually scheduled this week
+  let lo = 8 * 60, hi = 21 * 60;
+  days.forEach(k => {
+    eventsOn(k).forEach(e => { lo = Math.min(lo, toMin(e.start)); hi = Math.max(hi, toMin(e.end)); });
+    shown.filter(t => t.due === k && t.time).forEach(t => {
+      lo = Math.min(lo, toMin(t.time)); hi = Math.max(hi, toMin(t.time) + 30);
+    });
+  });
+  lo = Math.max(0, Math.floor(lo / 60) * 60);
+  hi = Math.min(1440, Math.ceil(hi / 60) * 60);
+  if (hi - lo < 480) hi = Math.min(1440, lo + 480);
+  const span = hi - lo;
+  const H = Math.round(span / 60 * PX_PER_HOUR);
+  const pct = m => (m - lo) / span * 100;
+
+  // header
+  let head = '<div class="wk-row wk-head"><div></div>';
+  days.forEach(k => {
+    const d = parseKey(k);
+    head += '<div class="' + (k === tk ? "is-today" : "") + '">' +
+      '<div class="wk-hd-dow">' + DOW[d.getDay()].toUpperCase() + "</div>" +
+      '<div class="wk-hd-num">' + d.getDate() + "</div></div>";
+  });
+  head += "</div>";
+
+  // all-day row: dated tasks with no clock time
+  let allday = '<div class="wk-row wk-allday"><div class="wk-lbl">all day</div>';
+  days.forEach(k => {
+    const ts = shown.filter(t => t.due === k && !t.time).sort(sortTasks);
+    allday += '<div class="cell">' + ts.map(t =>
+      '<button class="cal-ev btn' + (t.done ? " done" : "") + '" style="color:' + URG_VAR[urgency(t)] +
+      '" data-task="' + t.id + '">' + esc(t.title) + "</button>").join("") + "</div>";
+  });
+  allday += "</div>";
+
+  // hour gutter
+  let hours = '<div class="wk-hours" style="height:' + H + 'px">';
+  for (let m = lo; m <= hi; m += 60) hours += '<span style="top:' + pct(m) + '%">' + fmtHour(m) + "</span>";
+  hours += "</div>";
+
+  // day columns
+  let cols = "";
+  days.forEach(k => {
+    const d = parseKey(k);
+    const wknd = d.getDay() === 0 || d.getDay() === 6;
+    let inner = "";
+    for (let m = lo + 60; m < hi; m += 60) inner += '<div class="wk-line" style="top:' + pct(m) + '%"></div>';
+
+    freeGaps(k, lo, hi).forEach(g => {
+      const h = pct(g[1]) - pct(g[0]);
+      inner += '<div class="wk-free" style="top:' + pct(g[0]) + '%;height:' + h + '%">' +
+        (h > 7 ? "<span>" + durLabel(g[1] - g[0]) + " free</span>" : "") + "</div>";
+    });
+
+    const items = eventsOn(k).map(e => ({ s: toMin(e.start), e: toMin(e.end), ev: e }))
+      .concat(shown.filter(t => t.due === k && t.time)
+        .map(t => ({ s: toMin(t.time), e: toMin(t.time) + 30, task: t })));
+
+    layout(items).forEach(it => {
+      const w = 100 / it.lanes, left = it.lane * w;
+      const top = pct(it.s), h = Math.max(2.2, pct(it.e) - pct(it.s));
+      const box = 'top:' + top + '%;height:' + h + '%;left:calc(' + left + '% + 2px);width:calc(' + w + '% - 4px)';
+      if (it.ev){
+        inner += '<button class="wk-ev" style="color:var(--' + it.ev.color + ');' + box + '" data-ev="' + it.ev.id + '">' +
+          "<b>" + esc(it.ev.title) + "</b>" +
+          (h > 8 ? "<i>" + fmtTime(it.ev.start) + " to " + fmtTime(it.ev.end) + "</i>" : "") + "</button>";
+      } else {
+        inner += '<button class="wk-ev is-task" style="color:' + URG_VAR[urgency(it.task)] + ';' + box + '" data-task="' + it.task.id + '">' +
+          "<b>" + esc(it.task.title) + "</b></button>";
+      }
+    });
+
+    if (k === tk){
+      const now = new Date(), nm = now.getHours() * 60 + now.getMinutes();
+      if (nm >= lo && nm <= hi) inner += '<div class="wk-now" style="top:' + pct(nm) + '%"></div>';
+    }
+    cols += '<div class="wk-col' + (wknd ? " is-weekend" : "") + '" data-daycol="' + k + '" style="height:' + H + 'px">' + inner + "</div>";
+  });
+
+  // free-time totals
+  let foot = '<div class="wk-row wk-foot"><div class="wk-lbl">free</div>';
+  days.forEach(k => {
+    const total = freeGaps(k, lo, hi).reduce((a,g) => a + (g[1] - g[0]), 0);
+    foot += '<div class="cell"><b>' + durLabel(total) + "</b></div>";
+  });
+  foot += "</div>";
+
+  const first = parseKey(days[0]), last = parseKey(days[6]);
+  const range = first.getMonth() === last.getMonth()
+    ? MONFULL[first.getMonth()] + " " + first.getDate() + " to " + last.getDate()
+    : MON[first.getMonth()] + " " + first.getDate() + " to " + MON[last.getMonth()] + " " + last.getDate();
+
+  const blocks = state.events.slice().sort((a,b) => toMin(a.start) - toMin(b.start));
+  const blockList = '<div class="card" style="margin-top:16px">' +
+    '<div class="card-title">Your schedule blocks</div>' +
+    (blocks.length
+      ? blocks.map(e => '<button class="ev-row" data-evedit="' + e.id + '">' +
+          '<i class="ev-swatch" style="background:var(--' + e.color + ')"></i>' +
+          '<span class="ev-info"><b>' + esc(e.title) + "</b>" +
+          "<span>" + esc(daysLabel(e)) + " · " + fmtTime(e.start) + " to " + fmtTime(e.end) +
+          (e.until ? " · until " + esc(e.until) : "") + "</span></span></button>").join("")
+      : '<p class="hint" style="margin:0">Nothing yet. Add work shifts, classes, practice, anything that repeats.</p>') +
+    '<div class="btn-row" style="margin-top:12px"><button class="ghost" id="evAddBtn">Add a schedule block</button></div></div>';
+
+  pane.innerHTML =
+    '<div class="wk-bar"><h2>' + esc(range) + "</h2>" +
+      '<div class="calnav">' +
+        '<button data-wk="prev" aria-label="Previous week">‹</button>' +
+        '<button data-wk="now" style="width:auto;padding:0 10px;font-family:var(--mono);font-size:11px">this week</button>' +
+        '<button data-wk="next" aria-label="Next week">›</button>' +
+      "</div></div>" +
+    '<div class="wk-scroll"><div class="wk-inner">' + head + allday +
+      '<div class="wk-row">' + hours + cols + "</div>" + foot +
+    "</div></div>" + blockList;
+
+  pane.querySelectorAll("[data-wk]").forEach(b => {
+    b.onclick = () => {
+      const a = b.dataset.wk;
+      if (a === "prev") state.wk = addDays(state.wk, -7);
+      if (a === "next") state.wk = addDays(state.wk, 7);
+      if (a === "now"){ const n = new Date(); state.wk = addDays(n, -n.getDay()); }
+      renderWeek();
+    };
+  });
+  pane.querySelectorAll("[data-ev]").forEach(b => { b.onclick = () => openEvent(b.dataset.ev); });
+  pane.querySelectorAll("[data-evedit]").forEach(b => { b.onclick = () => openEvent(b.dataset.evedit); });
+  pane.querySelectorAll("[data-task]").forEach(b => { b.onclick = () => openDrawer(b.dataset.task); });
+  $("evAddBtn").onclick = () => openEvent(null);
+
+  // click blank space in a column to add a block starting there
+  pane.querySelectorAll("[data-daycol]").forEach(col => {
+    col.onclick = e => {
+      if (e.target !== col) return;
+      const r = col.getBoundingClientRect();
+      const m = Math.round((lo + (e.clientY - r.top) / r.height * span) / 30) * 30;
+      openEvent(null, {
+        days: [parseKey(col.dataset.daycol).getDay()],
+        start: fromMin(Math.max(0, Math.min(1380, m))),
+        end: fromMin(Math.max(60, Math.min(1440, m + 60)))
+      });
+    };
+  });
+}
+
+function daysLabel(e){
+  if (e.days && e.days.length){
+    if (e.days.length === 7) return "every day";
+    const set = e.days.slice().sort();
+    if (set.join() === "1,2,3,4,5") return "weekdays";
+    if (set.join() === "0,6") return "weekends";
+    return set.map(d => DOW[d]).join(" ");
+  }
+  if (e.date){
+    const d = parseKey(e.date);
+    return DOW[d.getDay()] + " " + MON[d.getMonth()] + " " + d.getDate();
+  }
+  return "no days set";
 }
 
 /* ============================================================
@@ -1675,6 +2086,100 @@ function bindDrawer(){
 }
 
 /* ============================================================
+   SCHEDULE BLOCKS
+   ============================================================ */
+const EV_COLORS = ["ev1","ev2","ev3","ev4","ev5","ev6"];
+let evDraft = null;
+
+function openEvent(id, preset){
+  const existing = id ? state.events.find(e => e.id === id) : null;
+  evDraft = existing
+    ? Object.assign({}, existing, { days: (existing.days || []).slice() })
+    : Object.assign({
+        id: uid(), kind: "event", title: "", days: [], date: null,
+        start: "09:00", end: "17:00", color: EV_COLORS[state.events.length % EV_COLORS.length],
+        from: null, until: null, created: Date.now(), updated: Date.now()
+      }, preset || {});
+
+  $("evHeading").textContent = existing ? "Edit schedule block" : "New schedule block";
+  $("evTitle").value = evDraft.title || "";
+  $("evStart").value = evDraft.start || "09:00";
+  $("evEnd").value   = evDraft.end || "17:00";
+  $("evDate").value  = evDraft.date || "";
+  $("evFrom").value  = evDraft.from || "";
+  $("evUntil").value = evDraft.until || "";
+  $("evDelete").hidden = !existing;
+  renderDaySet();
+  renderSwatches();
+  $("evSheet").classList.add("on");
+  setTimeout(() => $("evTitle").focus(), 60);
+}
+function closeEvent(){ $("evSheet").classList.remove("on"); evDraft = null; }
+
+function renderDaySet(){
+  $("evDays").innerHTML = DOW.map((d,i) =>
+    '<button type="button" data-dow="' + i + '" aria-pressed="' + (evDraft.days.indexOf(i) >= 0) + '">' +
+    d.charAt(0) + "</button>").join("");
+  $("evDays").querySelectorAll("[data-dow]").forEach(b => {
+    b.onclick = () => {
+      const i = Number(b.dataset.dow);
+      const at = evDraft.days.indexOf(i);
+      if (at >= 0) evDraft.days.splice(at,1); else evDraft.days.push(i);
+      renderDaySet();
+    };
+  });
+}
+function renderSwatches(){
+  $("evColors").innerHTML = EV_COLORS.map(c =>
+    '<button type="button" data-color="' + c + '" aria-label="' + c + '" aria-pressed="' + (evDraft.color === c) +
+    '" style="background:var(--' + c + ')"></button>').join("");
+  $("evColors").querySelectorAll("[data-color]").forEach(b => {
+    b.onclick = () => { evDraft.color = b.dataset.color; renderSwatches(); };
+  });
+}
+
+function saveEvent(){
+  if (!evDraft) return;
+  const title = $("evTitle").value.trim();
+  if (!title){ toast("Give the block a name"); $("evTitle").focus(); return; }
+  const start = $("evStart").value || "09:00";
+  const end   = $("evEnd").value || "17:00";
+  if (toMin(end) <= toMin(start)){ toast("End time has to be after the start"); return; }
+  const date = $("evDate").value || null;
+  if (!evDraft.days.length && !date){ toast("Pick some days, or a single date"); return; }
+
+  Object.assign(evDraft, {
+    title, start, end,
+    date: evDraft.days.length ? null : date,
+    from:  $("evFrom").value || null,
+    until: $("evUntil").value || null,
+    updated: Date.now()
+  });
+
+  const at = state.events.findIndex(e => e.id === evDraft.id);
+  if (at >= 0) state.events[at] = evDraft; else state.events.push(evDraft);
+  const saved = evDraft;
+  closeEvent();
+  persist(); render();
+  toast('Saved "' + clip(saved.title, 24) + '" · ' + daysLabel(saved));
+}
+
+function deleteEvent(){
+  if (!evDraft) return;
+  const at = state.events.findIndex(e => e.id === evDraft.id);
+  if (at < 0){ closeEvent(); return; }
+  const gone = state.events[at];
+  state.events.splice(at,1);
+  state.tomb.push({ id: gone.id, updated: Date.now() });
+  closeEvent();
+  persist(); render();
+  toast('Deleted "' + clip(gone.title, 24) + '"', () => {
+    state.events.splice(Math.min(at, state.events.length), 0, gone);
+    state.tomb = state.tomb.filter(x => x.id !== gone.id);
+  });
+}
+
+/* ============================================================
    COMMAND PALETTE
    ============================================================ */
 let palIdx = 0, palItems = [];
@@ -1685,6 +2190,7 @@ function palCommands(){
     sect:"Views", label:v.label, hint:"go",
     run:() => { state.view = v.id; state.day = null; render(); }
   }));
+  c.push({ sect:"Actions", label:"Add a schedule block",   run:() => openEvent(null) });
   c.push({ sect:"Actions", label:"Move overdue to today",  run: pushOverdue });
   c.push({ sect:"Actions", label:"Clear completed tasks",  run: clearCompleted });
   c.push({ sect:"Actions", label:"Toggle light and dark",  run:() => { state.theme = state.theme === "dark" ? "light" : "dark"; applyTheme(); persist(); render(); } });
@@ -1844,18 +2350,21 @@ async function doSync(silent){
     const rows = await r.json();
 
     // pull: remote wins when its timestamp is newer
-    const local = new Map(state.tasks.map(t => [t.id, t]));
+    const localT = new Map(state.tasks.map(t => [t.id, t]));
+    const localE = new Map(state.events.map(e => [e.id, e]));
     rows.forEach(row => {
       const rt = new Date(row.updated).getTime();
-      const mine = local.get(row.id);
+      const isEv = !!(row.data && row.data.kind === "event");
+      const bucket = isEv ? "events" : "tasks";
+      const mine = (isEv ? localE : localT).get(row.id);
       if (row.deleted){
-        if (mine && (mine.updated || 0) <= rt) state.tasks = state.tasks.filter(t => t.id !== row.id);
+        if (mine && (mine.updated || 0) <= rt) state[bucket] = state[bucket].filter(x => x.id !== row.id);
         return;
       }
       if (!mine){
         const buried = state.tomb.find(x => x.id === row.id);
         if (buried && buried.updated >= rt) return;
-        state.tasks.push(Object.assign({}, row.data, { id: row.id, updated: rt }));
+        state[bucket].push(Object.assign({}, row.data, { id: row.id, updated: rt }));
       } else if (rt > (mine.updated || 0)){
         Object.assign(mine, row.data, { id: row.id, updated: rt });
       }
@@ -1864,7 +2373,7 @@ async function doSync(silent){
     // push: anything newer here than there
     const remote = new Map(rows.map(x => [x.id, new Date(x.updated).getTime()]));
     const payload = [];
-    state.tasks.forEach(t => {
+    state.tasks.concat(state.events).forEach(t => {
       const rt = remote.get(t.id);
       if (rt === undefined || (t.updated || 0) > rt){
         payload.push({ id:t.id, user_id:sync.uid, data:t, updated:new Date(t.updated || Date.now()).toISOString(), deleted:false });
@@ -1887,7 +2396,7 @@ async function doSync(silent){
 
     sync.last = Date.now();
     saveSync();
-    Store.save(KEY, { tasks:state.tasks, tomb:state.tomb, theme:state.theme, showDone:state.showDone });
+    Store.save(KEY, { tasks:state.tasks, events:state.events, tomb:state.tomb, theme:state.theme, showDone:state.showDone });
     render();
     refreshSyncUI();
     if (!silent) toast("Synced " + state.tasks.length + " task" + (state.tasks.length === 1 ? "" : "s"));
@@ -1943,13 +2452,13 @@ function runUndo(){
   toast("Undone");
 }
 function exportJSON(){
-  const blob = new Blob([JSON.stringify({ tasks: state.tasks, exported: new Date().toISOString() }, null, 2)], {type:"application/json"});
+  const blob = new Blob([JSON.stringify({ tasks: state.tasks, events: state.events, exported: new Date().toISOString() }, null, 2)], {type:"application/json"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = "runway-" + todayKey() + ".json";
   a.click();
   URL.revokeObjectURL(a.href);
-  toast("Exported " + state.tasks.length + " tasks");
+  toast("Exported " + state.tasks.length + " tasks and " + state.events.length + " blocks");
 }
 function importJSON(file){
   const r = new FileReader();
@@ -1961,16 +2470,24 @@ function importJSON(file){
       const have = new Set(state.tasks.map(t => t.id));
       let added = 0;
       incoming.forEach(t => {
-        if (!t || !t.title) return;
-        if (have.has(t.id)) return;
+        if (!t || !t.title || have.has(t.id)) return;
         state.tasks.push(Object.assign({
           id: uid(), due:null, time:null, priority:2, project:null, repeat:null,
           notes:"", subs:[], done:false, completed:null, created:Date.now()
         }, t, { updated: Date.now() }));
         added++;
       });
+      let addedEv = 0;
+      if (Array.isArray(data.events)){
+        const haveEv = new Set(state.events.map(e => e.id));
+        data.events.forEach(e => {
+          if (!e || !e.title || haveEv.has(e.id)) return;
+          state.events.push(Object.assign({ id: uid(), kind:"event", days:[], date:null, color:"ev1" }, e, { updated: Date.now() }));
+          addedEv++;
+        });
+      }
       persist(); render();
-      toast("Imported " + added + " task" + (added === 1 ? "" : "s"));
+      toast("Imported " + added + " task" + (added === 1 ? "" : "s") + (addedEv ? " and " + addedEv + " blocks" : ""));
     } catch(e){
       toast("That file isn't a Runway export");
     }
@@ -2001,6 +2518,11 @@ function loadSamples(){
     mk("Register for fall classes", 9, "10:00", 1, "classes"),
     mk("Refactor the auth flow", null, null, 3, "side-project"),
     mk("Book the campus housing tour", 12, null, 2, "transfer")
+  ];
+  state.events = [
+    { id:uid(), kind:"event", title:"Work", days:[1,2,4,5], date:null, start:"09:00", end:"17:00", color:"ev1", from:null, until:null, created:Date.now(), updated:Date.now() },
+    { id:uid(), kind:"event", title:"Algorithms lecture", days:[1,3], date:null, start:"11:45", end:"13:25", color:"ev5", from:null, until:null, created:Date.now(), updated:Date.now() },
+    { id:uid(), kind:"event", title:"Gym", days:[1,3,5], date:null, start:"18:30", end:"19:45", color:"ev4", from:null, until:null, created:Date.now(), updated:Date.now() }
   ];
   persist(); render();
   toast("Sample week loaded. Clear it any time.");
@@ -2064,6 +2586,21 @@ function bind(){
     else toast("Select and copy manually");
   };
 
+  // schedule block editor
+  $("evClose").onclick  = closeEvent;
+  $("evSave").onclick   = saveEvent;
+  $("evDelete").onclick = deleteEvent;
+  $("evSheet").addEventListener("mousedown", e => { if (e.target === $("evSheet")) closeEvent(); });
+  $("evTitle").addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); saveEvent(); } });
+  document.querySelectorAll("[data-quick]").forEach(b => {
+    b.onclick = () => {
+      if (!evDraft) return;
+      const v = b.dataset.quick;
+      evDraft.days = v ? v.split(",").map(Number) : [];
+      renderDaySet();
+    };
+  });
+
   $("railBtn").onclick = () => $("rail").classList.toggle("on");
   $("rail").addEventListener("click", e => {
     if (window.innerWidth <= 820 && e.target.closest(".nav-item, .proj-item")) $("rail").classList.remove("on");
@@ -2083,6 +2620,7 @@ function bind(){
     }
     if (e.key === "Escape"){
       if ($("pal").classList.contains("on")) palClose();
+      else if ($("evSheet").classList.contains("on")) closeEvent();
       else if ($("sheet").classList.contains("on")) closeSync();
       else if (state.openId) closeDrawer();
       else { $("rail").classList.remove("on"); if (ae && ae.blur) ae.blur(); }
@@ -2102,10 +2640,17 @@ function bind(){
   const saved = await Store.load(KEY);
   if (saved){
     state.tasks    = Array.isArray(saved.tasks) ? saved.tasks : [];
+    state.events   = Array.isArray(saved.events) ? saved.events : [];
     state.tomb     = Array.isArray(saved.tomb) ? saved.tomb : [];
     state.theme    = saved.theme === "light" ? "light" : "dark";
     state.showDone = !!saved.showDone;
   }
+  state.events.forEach(e => {
+    e.kind = "event";
+    e.days = e.days || [];
+    e.color = e.color || "ev1";
+    e.updated = e.updated || e.created || Date.now();
+  });
   state.tasks.forEach(t => {
     t.subs = t.subs || [];
     t.priority = t.priority || 2;
