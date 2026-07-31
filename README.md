@@ -1,71 +1,84 @@
 # Runway
 
-A fast, local-first personal planner for tasks, deadlines, and the next 14 days.
+A personal planner: quick-capture checklist, month calendar, and a 14-day runway that shows the shape of your workload before you read a single task.
 
-Runway combines a task checklist, calendar, project filters, natural-language task entry, and a visual two-week runway in a single static web app. It has no build step and stores data in the browser.
+## Using it
 
-## Features
+**Quick add.** Type in the box at the top and the parser pulls out the details:
 
-- Natural-language task creation
-  - Dates such as `today`, `tomorrow`, `friday`, `in 3 days`, `Dec 5`, or `12/5/2026`
-  - Times such as `5pm`, `5:30pm`, or `17:00`
-  - Priorities using `!1`, `!2`, or `!3`
-  - Projects using tags such as `#classes`
-- Today, upcoming, calendar, all-task, and completed views
-- Drag-and-drop scheduling onto runway or calendar dates
-- Task details, notes, and subtasks
-- Project filtering and task search
-- Light and dark themes
-- JSON import and export
-- Browser-local persistence with `localStorage`
-- Responsive mobile layout
+| You type | It reads |
+|---|---|
+| `friday 5pm`, `tomorrow`, `today 9am` | due date and time |
+| `in 3 days`, `next monday`, `dec 5`, `12/5` | due date |
+| `every tuesday`, `every weekday`, `daily`, `every 2 weeks`, `monthly` | recurrence |
+| `#classes`, `#side-project` | project tag |
+| `!1` `!2` `!3` (or `!high` `!low`) | priority |
 
-## Try it locally
+Example: `Algorithms pset every tuesday 11:59pm !1 #classes`
 
-No installation is required. Open `index.html` in a modern browser.
+The preview strip under the box shows exactly what it parsed before you commit.
 
-For the most reliable browser behavior, serve the folder locally:
+**Recurring tasks.** Check one off and the next instance appears with its date already set. Steps reset to unchecked. Monthly rules clamp to the shortest month, so a task due the 31st lands on the 28th in February. Weekday rules skip Saturday and Sunday. You can also set or change recurrence in the task detail panel.
 
-```bash
-python -m http.server 8000
+**Command palette.** `Cmd+K` or `Ctrl+K`. Jump to a view, filter to a project, open a task by name, or run any action without leaving the keyboard. Arrow keys to move, Enter to run, Esc to close.
+
+**Undo.** Deletes, bulk moves, and clearing completed tasks all show an Undo button in the toast for a few seconds. `Cmd+Z` works too.
+
+**Move all to today.** When you have overdue tasks, the Overdue group header gets a button that reschedules the whole pile at once. Also in the command palette.
+
+**Drag to reschedule.** Grab any task and drop it on a runway column or a calendar cell.
+
+**Click a task** to open the detail panel: due date, time, priority, project, recurrence, steps, and notes.
+
+**Keyboard.** `Cmd+K` palette, `N` to add, `/` to search, `Esc` to close.
+
+## Colors mean something
+
+The palette is the deadline system, not decoration:
+
+- rose = overdue
+- amber = due today
+- periwinkle = due this week
+- slate = later
+
+## Your data
+
+By default everything lives in your browser's local storage on the device you're using. Nothing leaves the machine and there is no account. Use **Export** and **Import** to move a JSON file between devices.
+
+## Optional: sync with Supabase
+
+Click **Sync** in the sidebar to connect a free Supabase project. It talks to the REST and auth endpoints directly with `fetch`, so there is no SDK and no build step.
+
+1. Create a project at supabase.com.
+2. Open the SQL editor and run this:
+
+```sql
+create table public.tasks (
+  id       text primary key,
+  user_id  uuid not null default auth.uid()
+           references auth.users on delete cascade,
+  data     jsonb not null,
+  updated  timestamptz not null default now(),
+  deleted  boolean not null default false
+);
+
+alter table public.tasks enable row level security;
+
+create policy "own rows" on public.tasks
+  for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
 ```
 
-Then open `http://localhost:8000`.
+3. Under **Authentication → Providers → Email**, turn off "Confirm email" if you want to sign in right away without a confirmation step.
+4. Copy your Project URL and anon public key from **Settings → API**, paste them into the Sync panel, and create an account.
 
-## Example task syntax
+After that it syncs on load, on window focus, a few seconds after any edit, and every two minutes.
 
-```text
-Finish OS lab friday 5pm !1 #classes
-```
+**On the anon key:** it is designed to be public and is safe to commit to a public repo. Row level security is what actually protects the data, which is why the policy above matters. Without RLS enabled, the anon key would let anyone read the table.
 
-This creates a high-priority task due Friday at 5:00 PM in the `classes` project.
+**How conflicts resolve:** every task carries an `updated` timestamp and the newer version wins. Deletes leave a tombstone so they propagate instead of resurrecting on the next pull. This is last-write-wins, not a CRDT, so editing the same task on two devices while both are offline will keep whichever edit happened later.
 
-## Deploy with GitHub Pages
+## Customizing
 
-1. Push this repository to GitHub.
-2. Open the repository's **Settings**.
-3. Select **Pages**.
-4. Under **Build and deployment**, choose **Deploy from a branch**.
-5. Select the `main` branch and the `/ (root)` folder.
-6. Save and wait for the Pages URL to appear.
-
-Because this is a static app, no framework or build command is needed.
-
-## Data and privacy
-
-Task data stays in the current browser's local storage unless it is manually exported. Data does not automatically sync between browsers or devices.
-
-## Project structure
-
-```text
-runway-planner/
-├── index.html
-├── README.md
-├── LICENSE
-├── .gitignore
-└── .nojekyll
-```
-
-## License
-
-MIT
+Every color and radius is a CSS variable in the `:root` block at the top. `[data-theme="light"]` right below it overrides them for light mode. Change the accent in one place and the whole page follows.

@@ -413,8 +413,78 @@ textarea.input{resize:vertical;min-height:84px;line-height:1.55}
   background:var(--panel-3);border:1px solid var(--line);color:var(--text);
   padding:9px 15px;border-radius:var(--r-md);font-size:13px;box-shadow:var(--shadow);
   opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:60;
+  display:flex;align-items:center;gap:14px;max-width:calc(100vw - 32px);
 }
-.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#toastUndo{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);flex:none;
+}
+#toastUndo:hover{text-decoration:underline}
+
+/* ---------- command palette ---------- */
+.pal{
+  position:fixed;inset:0;z-index:70;display:none;
+  padding:11vh 16px 16px;justify-content:center;align-items:flex-start;
+  background:rgba(4,8,16,.55);
+}
+.pal.on{display:flex}
+.pal-box{
+  width:min(560px,100%);max-height:72vh;display:flex;flex-direction:column;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.pal-input{
+  width:100%;background:none;border:0;outline:0;
+  padding:15px 18px;font-size:16px;border-bottom:1px solid var(--line-soft);
+}
+.pal-input::placeholder{color:var(--faint)}
+.pal-list{overflow:auto;padding:6px 6px 10px}
+.pal-sect{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);padding:10px 12px 5px}
+.pal-item{display:flex;align-items:center;gap:10px;width:100%;padding:8px 12px;border-radius:var(--r-sm);text-align:left}
+.pal-item .pi-t{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px}
+.pal-item .pi-s{font-family:var(--mono);font-size:10.5px;color:var(--faint);flex:none}
+.pal-item.sel{background:var(--panel-3)}
+.pal-item i.mark{width:7px;height:7px;border-radius:2px;flex:none}
+.pal-empty{padding:26px 16px;text-align:center;color:var(--faint);font-size:13px}
+
+/* ---------- sync sheet ---------- */
+.sheet{
+  position:fixed;inset:0;z-index:65;display:none;
+  padding:7vh 16px 16px;justify-content:center;align-items:flex-start;
+  background:rgba(4,8,16,.55);
+}
+.sheet.on{display:flex}
+.sheet-box{
+  width:min(540px,100%);max-height:82vh;overflow:auto;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);
+}
+.sheet-head{display:flex;align-items:center;gap:9px;padding:16px 18px;border-bottom:1px solid var(--line-soft);position:sticky;top:0;background:var(--panel);z-index:1}
+.sheet-head h3{font-family:var(--display);font-size:17px;font-weight:600;margin:0;letter-spacing:-.02em}
+.sheet-body{padding:18px;display:flex;flex-direction:column;gap:15px}
+.hint{font-size:12.5px;color:var(--dim);line-height:1.6;margin:0}
+.hint b{color:var(--text);font-weight:600}
+.hint code{font-family:var(--mono);font-size:11.5px;color:var(--accent)}
+pre.sql{
+  background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r-sm);
+  padding:11px 12px;font-family:var(--mono);font-size:10.5px;line-height:1.65;
+  overflow:auto;margin:0;color:var(--dim);
+}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--faint);flex:none}
+.sync-dot.ok{background:var(--soon)}
+.sync-dot.busy{background:var(--today)}
+.sync-dot.err{background:var(--overdue)}
+.sync-status{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--dim)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ---------- group actions ---------- */
+.group-act{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--faint);border:1px solid var(--line);border-radius:5px;padding:2px 7px;
+}
+.group-act:hover{color:var(--text);border-color:var(--accent)}
+.chip-rep{color:var(--dim);background:var(--panel-2)}
 
 /* ---------- mobile ---------- */
 .rail-toggle{display:none}
@@ -473,12 +543,14 @@ textarea.input{resize:vertical;min-height:84px;line-height:1.55}
     <div class="rail-foot">
       <div class="rail-actions">
         <button class="ghost" id="themeBtn">Light mode</button>
+        <button class="ghost" id="syncBtn">Sync</button>
         <button class="ghost" id="exportBtn">Export</button>
         <button class="ghost" id="importBtn">Import</button>
       </div>
       <div class="kbd-legend">
-        <kbd>N</kbd> new task · <kbd>/</kbd> search<br>
-        <kbd>Esc</kbd> close · drag a task onto a date
+        <kbd>⌘K</kbd> command palette<br>
+        <kbd>N</kbd> new task · <kbd>/</kbd> search · <kbd>Esc</kbd> close<br>
+        drag a task onto any date
       </div>
     </div>
   </aside>
@@ -589,6 +661,22 @@ textarea.input{resize:vertical;min-height:84px;line-height:1.55}
       <input class="input" id="dProj" type="text" list="projOptions" placeholder="classes, side-project, apps">
       <datalist id="projOptions"></datalist>
     </div>
+    <div class="row2">
+      <div class="field">
+        <label for="dRepUnit">Repeats</label>
+        <select class="input" id="dRepUnit">
+          <option value="">Never</option>
+          <option value="day">Every day</option>
+          <option value="weekday">Every weekday</option>
+          <option value="week">Every week</option>
+          <option value="month">Every month</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="dRepN">Interval</label>
+        <input class="input" id="dRepN" type="number" min="1" max="52" value="1">
+      </div>
+    </div>
     <div class="field">
       <label>Steps</label>
       <div id="dSubs"></div>
@@ -608,7 +696,75 @@ textarea.input{resize:vertical;min-height:84px;line-height:1.55}
   </div>
 </aside>
 
-<div class="toast" id="toast"></div>
+<!-- ============ COMMAND PALETTE ============ -->
+<div class="pal" id="pal">
+  <div class="pal-box" role="dialog" aria-label="Command palette">
+    <input class="pal-input" id="palInput" type="text" placeholder="Jump to a view, project, or task…" autocomplete="off">
+    <div class="pal-list" id="palList"></div>
+  </div>
+</div>
+
+<!-- ============ SYNC SHEET ============ -->
+<div class="sheet" id="sheet">
+  <div class="sheet-box" role="dialog" aria-label="Sync settings">
+    <div class="sheet-head">
+      <h3>Sync across devices</h3>
+      <button class="drawer-close" id="sheetClose" aria-label="Close sync settings">×</button>
+    </div>
+    <div class="sheet-body">
+      <div class="sync-status"><i class="sync-dot" id="syncDot"></i><span id="syncMsg">Not connected</span></div>
+
+      <p class="hint">Runway keeps your tasks in this browser by default. Connect a free Supabase project and it syncs everywhere you sign in. Your credentials stay in this browser and go straight to your own project.</p>
+
+      <div class="field">
+        <label for="sbUrl">Project URL</label>
+        <input class="input" id="sbUrl" type="url" placeholder="https://abcdefgh.supabase.co" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="sbKey">Anon public key</label>
+        <input class="input" id="sbKey" type="text" placeholder="eyJhbGciOi…" autocomplete="off">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="sbEmail">Email</label>
+          <input class="input" id="sbEmail" type="email" autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="sbPass">Password</label>
+          <input class="input" id="sbPass" type="password" autocomplete="current-password">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="ghost" id="sbSignIn">Sign in</button>
+        <button class="ghost" id="sbSignUp">Create account</button>
+        <button class="ghost" id="sbSyncNow">Sync now</button>
+        <button class="ghost danger" id="sbSignOut">Sign out</button>
+      </div>
+
+      <p class="hint"><b>One-time setup.</b> In your Supabase project open the SQL editor, paste this, and run it. Row level security means each account only ever sees its own rows.</p>
+      <pre class="sql" id="sqlBlock">create table public.tasks (
+  id       text primary key,
+  user_id  uuid not null default auth.uid()
+           references auth.users on delete cascade,
+  data     jsonb not null,
+  updated  timestamptz not null default now(),
+  deleted  boolean not null default false
+);
+
+alter table public.tasks enable row level security;
+
+create policy "own rows" on public.tasks
+  for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);</pre>
+      <button class="ghost" id="sqlCopy" style="align-self:flex-start">Copy SQL</button>
+
+      <p class="hint">The anon key is meant to be public and is safe to commit, because row level security is what actually protects the data. Under <b>Authentication → Providers → Email</b>, turn off "Confirm email" if you want to sign in immediately without a confirmation step.</p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastMsg"></span><button id="toastUndo" hidden>Undo</button></div>
 <input type="file" id="fileInput" accept="application/json" hidden>
 
 <script>
@@ -620,23 +776,24 @@ textarea.input{resize:vertical;min-height:84px;line-height:1.55}
    Uses the host's storage API when present, localStorage on
    GitHub Pages, and memory as a last resort.
    ============================================================ */
-const KEY = "runway.planner.v1";
+const KEY  = "runway.planner.v1";
+const SKEY = "runway.sync.v1";
 const mem = {};
 const Store = {
-  async load(){
+  async load(k){
     if (window.storage && typeof window.storage.get === "function"){
-      try { const r = await window.storage.get(KEY); return r && r.value ? JSON.parse(r.value) : null; }
+      try { const r = await window.storage.get(k); return r && r.value ? JSON.parse(r.value) : null; }
       catch(e){ return null; }
     }
-    try { const v = localStorage.getItem(KEY); return v ? JSON.parse(v) : null; }
-    catch(e){ return mem[KEY] || null; }
+    try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; }
+    catch(e){ return mem[k] || null; }
   },
-  async save(data){
+  async save(k, data){
     const s = JSON.stringify(data);
     if (window.storage && typeof window.storage.set === "function"){
-      try { await window.storage.set(KEY, s); return; } catch(e){}
+      try { await window.storage.set(k, s); return; } catch(e){}
     }
-    try { localStorage.setItem(KEY, s); } catch(e){ mem[KEY] = data; }
+    try { localStorage.setItem(k, s); } catch(e){ mem[k] = data; }
   }
 };
 
@@ -644,6 +801,7 @@ const Store = {
    DATE HELPERS  (local dates as YYYY-MM-DD, no timezone drift)
    ============================================================ */
 const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const DOWFULL = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const MONFULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
@@ -690,13 +848,33 @@ const URG_VAR = { overdue:"var(--overdue)", today:"var(--today)", soon:"var(--so
    ============================================================ */
 function parseInput(raw){
   let s = " " + raw.replace(/\s+/g," ").trim() + " ";
-  const out = { title:"", due:null, time:null, priority:2, project:null };
+  const out = { title:"", due:null, time:null, priority:2, project:null, repeat:null };
 
   s = s.replace(/\s#([A-Za-z0-9][\w-]*)/g, (m,g) => { out.project = g.toLowerCase(); return " "; });
 
   s = s.replace(/\s!(1|2|3|high|hi|h|med|medium|m|low|l)\b/gi, (m,g) => {
     const v = g.toLowerCase();
     out.priority = (v==="1"||v==="high"||v==="hi"||v==="h") ? 1 : (v==="3"||v==="low"||v==="l") ? 3 : 2;
+    return " ";
+  });
+
+  // ---- recurrence, consumed before dates so "every monday" isn't read as a due date
+  const WD = {sun:0,mon:1,tue:2,tues:2,wed:3,thu:4,thur:4,thurs:4,fri:5,sat:6};
+  s = s.replace(/\severy\s(\d{1,2})\s(days?|weeks?|months?)\b/i, (m,n,unit) => {
+    out.repeat = { unit: unit.toLowerCase().replace(/s$/,""), n: parseInt(n,10), dow: null };
+    return " ";
+  });
+  if (!out.repeat) s = s.replace(/\severy\s(weekday|day|week|month)\b/i, (m,unit) => {
+    out.repeat = { unit: unit.toLowerCase(), n: 1, dow: null }; return " ";
+  });
+  if (!out.repeat) s = s.replace(/\severy\s(sun|mon|tue|tues|wed|thu|thur|thurs|fri|sat)(day|nesday|rsday|urday)?\b/i, (m,wd) => {
+    out.repeat = { unit: "week", n: 1, dow: WD[wd.toLowerCase()] }; return " ";
+  });
+  if (!out.repeat) s = s.replace(/\s(daily|weekly|biweekly|monthly)\b/i, (m,w) => {
+    const v = w.toLowerCase();
+    out.repeat = v === "daily"   ? { unit:"day",   n:1, dow:null }
+               : v === "monthly" ? { unit:"month", n:1, dow:null }
+               : { unit:"week", n: v === "biweekly" ? 2 : 1, dow:null };
     return " ";
   });
 
@@ -762,9 +940,54 @@ function parseInput(raw){
     });
   }
 
+  // a repeating task with no explicit date starts at its next occurrence
+  if (out.repeat && !out.due){
+    if (out.repeat.dow !== null && out.repeat.dow !== undefined){
+      out.due = key(addDays(now, (out.repeat.dow - now.getDay() + 7) % 7));
+    } else {
+      out.due = todayKey();
+    }
+  }
   if (out.time && !out.due) out.due = todayKey();
+
   out.title = s.replace(/\s+/g," ").trim();
   return out;
+}
+
+/* Next occurrence for a repeating task, based on its current due date. */
+function nextDue(task){
+  const rep = task.repeat;
+  if (!rep) return null;
+  const base = task.due ? parseKey(task.due) : new Date();
+  const n = Math.max(1, rep.n || 1);
+  if (rep.unit === "day") return key(addDays(base, n));
+  if (rep.unit === "weekday"){
+    let d = addDays(base, 1);
+    while (d.getDay() === 0 || d.getDay() === 6) d = addDays(d, 1);
+    return key(d);
+  }
+  if (rep.unit === "week"){
+    if (rep.dow !== null && rep.dow !== undefined){
+      let d = addDays(base, 1);
+      while (d.getDay() !== rep.dow) d = addDays(d, 1);
+      return key(addDays(d, 7 * (n - 1)));
+    }
+    return key(addDays(base, 7 * n));
+  }
+  if (rep.unit === "month"){
+    const d = new Date(base.getFullYear(), base.getMonth() + n, 1);
+    const last = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+    d.setDate(Math.min(base.getDate(), last));
+    return key(d);
+  }
+  return null;
+}
+function repeatLabel(rep){
+  if (!rep) return "";
+  if (rep.unit === "weekday") return "every weekday";
+  if (rep.unit === "week" && rep.dow !== null && rep.dow !== undefined) return "every " + DOWFULL[rep.dow].toLowerCase();
+  const n = rep.n || 1;
+  return n > 1 ? "every " + n + " " + rep.unit + "s" : "every " + rep.unit;
 }
 
 /* ============================================================
@@ -772,6 +995,7 @@ function parseInput(raw){
    ============================================================ */
 let state = {
   tasks: [],
+  tomb: [],
   view: "today",
   query: "",
   project: null,
@@ -785,12 +1009,18 @@ let state = {
 const uid = () => Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-3);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const $ = id => document.getElementById(id);
+const clip = (s,n) => s.length > n ? s.slice(0,n-1) + "…" : s;
+const stamp = t => { t.updated = Date.now(); return t; };
 
 let saveTimer = null;
 function persist(){
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
-    Store.save({ tasks: state.tasks, theme: state.theme, showDone: state.showDone });
+    // tombstones older than 60 days have long since propagated
+    const cut = Date.now() - 60*86400000;
+    state.tomb = state.tomb.filter(x => x.updated > cut);
+    Store.save(KEY, { tasks: state.tasks, tomb: state.tomb, theme: state.theme, showDone: state.showDone });
+    queueSync();
   }, 180);
 }
 
@@ -964,6 +1194,7 @@ function taskRow(t){
       '<div class="task-meta">' +
         (t.due ? '<span class="chip" style="color:' + c + '">' + esc(fmtDue(t)) + "</span>" : "") +
         (t.project ? '<span class="chip chip-proj">#' + esc(t.project) + "</span>" : "") +
+        (t.repeat ? '<span class="chip chip-rep">↻ ' + esc(repeatLabel(t.repeat)) + "</span>" : "") +
         (t.priority !== 2 ? '<span class="prio" style="color:' + prioColor + '">!' + t.priority + "</span>" : "") +
         (subs.length ? '<span class="sub-count">' + doneSubs + "/" + subs.length + " steps</span>" : "") +
         (t.notes ? '<span class="sub-count">note</span>' : "") +
@@ -972,12 +1203,13 @@ function taskRow(t){
     '<button class="task-del" data-act="del" aria-label="Delete task">×</button>' +
     "</div>";
 }
-function groupBlock(name, color, list){
+function groupBlock(name, color, list, action){
   if (!list.length) return "";
   return '<section class="group">' +
     '<div class="group-head">' +
       '<span class="group-name" style="color:' + color + '">' + esc(name) + "</span>" +
       '<span class="group-rule"></span>' +
+      (action ? '<button class="group-act" data-groupact="' + action.id + '">' + esc(action.label) + "</button>" : "") +
       '<span class="group-n">' + list.length + "</span>" +
     "</div>" +
     list.map(taskRow).join("") +
@@ -1015,7 +1247,7 @@ function renderList(){
     const today   = open.filter(t => urgency(t) === "today").sort(sortTasks);
     const inbox   = open.filter(t => !t.due).sort(sortTasks);
     const doneToday = all.filter(t => t.done && t.completed && t.completed.slice(0,10) === tk).sort(sortTasks);
-    body = groupBlock("Overdue", "var(--overdue)", overdue) +
+    body = groupBlock("Overdue", "var(--overdue)", overdue, overdue.length ? {id:"push", label:"Move all to today"} : null) +
            groupBlock("Today", "var(--today)", today) +
            groupBlock("No date", "var(--faint)", inbox) +
            (state.showDone ? groupBlock("Finished today", "var(--done)", doneToday) : "");
@@ -1085,6 +1317,9 @@ function renderList(){
       if (w === "q"){ state.query = ""; $("search").value = ""; }
       render();
     };
+  });
+  pane.querySelectorAll("[data-groupact]").forEach(b => {
+    b.onclick = () => { if (b.dataset.groupact === "push") pushOverdue(); };
   });
   wireTasks(pane);
 }
@@ -1218,9 +1453,11 @@ function wireDrop(el, dayKey){
     try { id = e.dataTransfer.getData("text/plain") || dragId; } catch(err){}
     const t = state.tasks.find(x => x.id === id);
     if (!t) return;
+    const prev = t.due;
     t.due = dayKey;
+    stamp(t);
     persist(); render();
-    toast("Moved to " + fmtDue(t));
+    toast("Moved to " + fmtDue(t), () => { t.due = prev; stamp(t); });
   });
 }
 
@@ -1229,24 +1466,77 @@ function toggleTask(id){
   if (!t) return;
   t.done = !t.done;
   t.completed = t.done ? new Date().toISOString() : null;
+  stamp(t);
+
+  // a completed repeating task lays down its next instance
+  if (t.done && t.repeat){
+    const nd = nextDue(t);
+    if (nd){
+      const next = Object.assign({}, t, {
+        id: uid(), due: nd, done: false, completed: null,
+        subs: (t.subs || []).map(s => ({ id: uid(), title: s.title, done: false })),
+        created: Date.now(), updated: Date.now()
+      });
+      state.tasks.unshift(next);
+      persist(); render();
+      toast("Done. Next one lands " + fmtDue(next).toLowerCase());
+      return;
+    }
+  }
   persist(); render();
 }
+
 function removeTask(id){
-  state.tasks = state.tasks.filter(t => t.id !== id);
+  const idx = state.tasks.findIndex(t => t.id === id);
+  if (idx < 0) return;
+  const t = state.tasks[idx];
+  state.tasks.splice(idx, 1);
+  state.tomb.push({ id, updated: Date.now() });
   if (state.openId === id) closeDrawer();
   persist(); render();
-  toast("Task deleted");
+  toast('Deleted "' + clip(t.title, 26) + '"', () => {
+    state.tasks.splice(Math.min(idx, state.tasks.length), 0, t);
+    state.tomb = state.tomb.filter(x => x.id !== id);
+  });
 }
+
 function addTask(raw){
   const p = parseInput(raw);
   if (!p.title) return false;
   state.tasks.unshift({
     id: uid(), title: p.title, due: p.due, time: p.time,
-    priority: p.priority, project: p.project, notes: "", subs: [],
-    done: false, completed: null, created: Date.now()
+    priority: p.priority, project: p.project, repeat: p.repeat,
+    notes: "", subs: [], done: false, completed: null,
+    created: Date.now(), updated: Date.now()
   });
   persist(); render();
   return true;
+}
+
+function pushOverdue(){
+  const tk = todayKey();
+  const hits = state.tasks.filter(t => !t.done && t.due && t.due < tk);
+  if (!hits.length){ toast("Nothing overdue"); return; }
+  const prev = hits.map(t => ({ t, due: t.due }));
+  hits.forEach(t => { t.due = tk; stamp(t); });
+  persist(); render();
+  toast("Moved " + hits.length + " task" + (hits.length === 1 ? "" : "s") + " to today", () => {
+    prev.forEach(p => { p.t.due = p.due; stamp(p.t); });
+  });
+}
+
+function clearCompleted(){
+  const gone = state.tasks.filter(t => t.done);
+  if (!gone.length){ toast("Nothing completed to clear"); return; }
+  const before = state.tasks.slice();
+  const ids = new Set(gone.map(g => g.id));
+  state.tasks = state.tasks.filter(t => !t.done);
+  gone.forEach(t => state.tomb.push({ id: t.id, updated: Date.now() }));
+  persist(); render();
+  toast("Cleared " + gone.length + " completed", () => {
+    state.tasks = before;
+    state.tomb = state.tomb.filter(x => !ids.has(x.id));
+  });
 }
 
 /* ============================================================
@@ -1256,7 +1546,7 @@ function renderParse(){
   const raw = $("composer").value;
   const row = $("parseRow");
   if (!raw.trim()){
-    row.innerHTML = '<span>try: <b style="color:var(--dim)">friday 5pm</b> · <b style="color:var(--dim)">tomorrow</b> · <b style="color:var(--dim)">in 3 days</b> · <b style="color:var(--dim)">#project</b> · <b style="color:var(--dim)">!1</b></span>';
+    row.innerHTML = '<span>try: <b style="color:var(--dim)">friday 5pm</b> · <b style="color:var(--dim)">in 3 days</b> · <b style="color:var(--dim)">every monday</b> · <b style="color:var(--dim)">#project</b> · <b style="color:var(--dim)">!1</b></span>';
     return;
   }
   const p = parseInput(raw);
@@ -1267,6 +1557,7 @@ function renderParse(){
     chips.push('<span class="parse-chip" style="color:' + URG_VAR[u] + '">' + esc(fmtDue({due:p.due,time:p.time})) + "</span>");
   }
   if (p.project) chips.push('<span class="parse-chip" style="color:' + projColor(p.project) + '">#' + esc(p.project) + "</span>");
+  if (p.repeat) chips.push('<span class="parse-chip" style="color:var(--dim)">↻ ' + esc(repeatLabel(p.repeat)) + "</span>");
   if (p.priority !== 2) chips.push('<span class="parse-chip" style="color:' + (p.priority===1?"var(--overdue)":"var(--later)") + '">!' + p.priority + "</span>");
   row.innerHTML = chips.join("");
 }
@@ -1286,6 +1577,9 @@ function openDrawer(id){
   $("dDate").value  = t.due || "";
   $("dTime").value  = t.time || "";
   $("dProj").value  = t.project || "";
+  $("dRepUnit").value = t.repeat ? t.repeat.unit : "";
+  $("dRepN").value  = t.repeat ? (t.repeat.n || 1) : 1;
+  $("dRepN").disabled = !t.repeat || t.repeat.unit === "weekday";
   $("dNotes").value = t.notes || "";
   $("dDone").textContent = t.done ? "Mark not done" : "Mark done";
   $("dPrio").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(Number(b.dataset.p) === t.priority)));
@@ -1323,22 +1617,39 @@ function renderSubs(){
       const s = t.subs.find(x => x.id === sid);
       if (!s) return;
       s.done = !s.done;
+      stamp(t);
       persist(); renderSubs(); renderList();
     };
     row.querySelector('[data-sact="del"]').onclick = () => {
       t.subs = t.subs.filter(x => x.id !== sid);
+      stamp(t);
       persist(); renderSubs(); renderList();
     };
   });
 }
 
 function bindDrawer(){
-  const upd = (fn) => { const t = current(); if (!t) return; fn(t); persist(); render(); };
+  const upd = (fn) => { const t = current(); if (!t) return; fn(t); stamp(t); persist(); render(); };
   $("dTitle").oninput = e => upd(t => { t.title = e.target.value; });
   $("dDate").onchange = e => upd(t => { t.due = e.target.value || null; });
   $("dTime").onchange = e => upd(t => { t.time = e.target.value || null; });
   $("dProj").onchange = e => upd(t => { t.project = e.target.value.trim().replace(/^#/,"").toLowerCase() || null; });
   $("dNotes").oninput = e => upd(t => { t.notes = e.target.value; });
+
+  const setRepeat = () => {
+    const unit = $("dRepUnit").value;
+    const n = Math.max(1, Math.min(52, parseInt($("dRepN").value, 10) || 1));
+    upd(t => {
+      if (!unit){ t.repeat = null; return; }
+      // "every week" on a dated task locks to that task's weekday
+      const dow = unit === "week" && t.due ? parseKey(t.due).getDay() : null;
+      t.repeat = { unit, n: unit === "weekday" ? 1 : n, dow };
+    });
+    $("dRepN").disabled = !unit || unit === "weekday";
+  };
+  $("dRepUnit").onchange = setRepeat;
+  $("dRepN").onchange = setRepeat;
+
   $("dPrio").querySelectorAll("button").forEach(b => {
     b.onclick = () => {
       upd(t => { t.priority = Number(b.dataset.p); });
@@ -1351,6 +1662,7 @@ function bindDrawer(){
     if (!v || !t) return;
     t.subs = t.subs || [];
     t.subs.push({ id: uid(), title: v, done: false });
+    stamp(t);
     $("dSubInput").value = "";
     persist(); renderSubs(); renderList();
   };
@@ -1363,6 +1675,242 @@ function bindDrawer(){
 }
 
 /* ============================================================
+   COMMAND PALETTE
+   ============================================================ */
+let palIdx = 0, palItems = [];
+
+function palCommands(){
+  const c = [];
+  VIEWS.forEach(v => c.push({
+    sect:"Views", label:v.label, hint:"go",
+    run:() => { state.view = v.id; state.day = null; render(); }
+  }));
+  c.push({ sect:"Actions", label:"Move overdue to today",  run: pushOverdue });
+  c.push({ sect:"Actions", label:"Clear completed tasks",  run: clearCompleted });
+  c.push({ sect:"Actions", label:"Toggle light and dark",  run:() => { state.theme = state.theme === "dark" ? "light" : "dark"; applyTheme(); persist(); render(); } });
+  c.push({ sect:"Actions", label:state.showDone ? "Hide completed tasks" : "Show completed tasks", run:() => { state.showDone = !state.showDone; persist(); render(); } });
+  c.push({ sect:"Actions", label:"Clear all filters",      run:() => { state.project = null; state.day = null; state.query = ""; $("search").value = ""; render(); } });
+  c.push({ sect:"Actions", label:"Sync settings",          run: openSync });
+  c.push({ sect:"Actions", label:"Export tasks as JSON",   run: exportJSON });
+  c.push({ sect:"Actions", label:"Import tasks from JSON", run:() => $("fileInput").click() });
+  projects().forEach(p => c.push({
+    sect:"Projects", label:"#" + p, color: projColor(p),
+    hint: state.tasks.filter(t => t.project === p && !t.done).length + " open",
+    run:() => { state.project = p; state.view = "all"; render(); }
+  }));
+  return c;
+}
+
+function renderPal(){
+  const q = $("palInput").value.trim().toLowerCase();
+  const cmds = palCommands().filter(c => !q || c.label.toLowerCase().includes(q));
+  const pool = q
+    ? state.tasks.filter(t => t.title.toLowerCase().includes(q)).sort(sortTasks).slice(0,7)
+    : state.tasks.filter(t => !t.done && t.due).sort(sortTasks).slice(0,4);
+  const tasks = pool.map(t => ({
+    sect:"Tasks", label:t.title, hint:fmtDue(t) || "no date",
+    color:URG_VAR[urgency(t)], run:() => openDrawer(t.id)
+  }));
+
+  palItems = cmds.concat(tasks);
+  if (palIdx >= palItems.length) palIdx = 0;
+
+  if (!palItems.length){
+    $("palList").innerHTML = '<div class="pal-empty">Nothing matches. Press <kbd>Esc</kbd> to close.</div>';
+    return;
+  }
+  let html = "", last = null;
+  palItems.forEach((c,i) => {
+    if (c.sect !== last){ html += '<div class="pal-sect">' + c.sect + "</div>"; last = c.sect; }
+    html += '<button class="pal-item' + (i === palIdx ? " sel" : "") + '" data-i="' + i + '">' +
+      (c.color ? '<i class="mark" style="background:' + c.color + '"></i>' : "") +
+      '<span class="pi-t">' + esc(c.label) + "</span>" +
+      (c.hint ? '<span class="pi-s">' + esc(c.hint) + "</span>" : "") +
+      "</button>";
+  });
+  $("palList").innerHTML = html;
+  $("palList").querySelectorAll("[data-i]").forEach(b => {
+    b.onclick = () => palRun(Number(b.dataset.i));
+  });
+}
+function palRun(i){
+  const item = palItems[i];
+  palClose();
+  if (item && item.run) item.run();
+}
+function palOpen(){
+  palIdx = 0;
+  $("pal").classList.add("on");
+  $("palInput").value = "";
+  renderPal();
+  setTimeout(() => $("palInput").focus(), 40);
+}
+function palClose(){ $("pal").classList.remove("on"); }
+function palMove(d){
+  if (!palItems.length) return;
+  palIdx = (palIdx + d + palItems.length) % palItems.length;
+  renderPal();
+  const sel = $("palList").querySelector(".pal-item.sel");
+  if (sel) sel.scrollIntoView({ block:"nearest" });
+}
+
+/* ============================================================
+   SUPABASE SYNC  (plain REST, no SDK)
+   ============================================================ */
+let sync = { url:"", key:"", email:"", token:null, refresh:null, uid:null, last:0 };
+let syncTimer = null;
+
+function saveSync(){ Store.save(SKEY, sync); }
+const syncReady = () => !!(sync.url && sync.key && sync.token && sync.uid);
+
+function setSyncStatus(kind, msg){
+  const dot = $("syncDot");
+  if (!dot) return;
+  dot.className = "sync-dot" + (kind ? " " + kind : "");
+  $("syncMsg").textContent = msg;
+  $("syncBtn").textContent = kind === "ok" ? "Sync ✓" : kind === "err" ? "Sync !" : "Sync";
+}
+function refreshSyncUI(){
+  if (!sync.url || !sync.key) setSyncStatus("", "Not connected");
+  else if (!sync.token)       setSyncStatus("", "Project set. Sign in to start syncing.");
+  else setSyncStatus("ok", "Signed in as " + sync.email + (sync.last ? " · last sync " + new Date(sync.last).toLocaleTimeString() : ""));
+}
+
+async function sbFetch(path, opts){
+  opts = opts || {};
+  const headers = Object.assign(
+    { "apikey": sync.key, "Content-Type": "application/json" },
+    sync.token ? { "Authorization": "Bearer " + sync.token } : {},
+    opts.headers || {}
+  );
+  return fetch(sync.url.replace(/\/+$/,"") + path, Object.assign({}, opts, { headers }));
+}
+async function sbAuth(mode){
+  sync.url   = $("sbUrl").value.trim();
+  sync.key   = $("sbKey").value.trim();
+  const email = $("sbEmail").value.trim();
+  const password = $("sbPass").value;
+  if (!sync.url || !sync.key){ setSyncStatus("err", "Add your project URL and anon key first"); return; }
+  if (!email || !password){ setSyncStatus("err", "Add an email and password"); return; }
+  setSyncStatus("busy", mode === "up" ? "Creating account…" : "Signing in…");
+  try {
+    sync.token = null;
+    const path = mode === "up" ? "/auth/v1/signup" : "/auth/v1/token?grant_type=password";
+    const r = await sbFetch(path, { method:"POST", body: JSON.stringify({ email, password }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error_description || j.msg || j.message || ("Request failed (" + r.status + ")"));
+    if (!j.access_token) throw new Error("Account created. Confirm the email, then sign in.");
+    sync.token = j.access_token;
+    sync.refresh = j.refresh_token;
+    sync.uid = j.user && j.user.id;
+    sync.email = email;
+    saveSync();
+    $("sbPass").value = "";
+    await doSync(false);
+  } catch(e){
+    setSyncStatus("err", e.message);
+  }
+}
+async function sbRefreshToken(){
+  if (!sync.refresh) return false;
+  try {
+    const r = await sbFetch("/auth/v1/token?grant_type=refresh_token", {
+      method:"POST", body: JSON.stringify({ refresh_token: sync.refresh })
+    });
+    if (!r.ok) return false;
+    const j = await r.json();
+    sync.token = j.access_token;
+    sync.refresh = j.refresh_token;
+    if (j.user) sync.uid = j.user.id;
+    saveSync();
+    return true;
+  } catch(e){ return false; }
+}
+function sbSignOut(){
+  sync.token = null; sync.refresh = null; sync.uid = null; sync.last = 0;
+  saveSync(); refreshSyncUI();
+  toast("Signed out. Your tasks stay on this device.");
+}
+
+const SELECT = "/rest/v1/tasks?select=id,data,updated,deleted";
+
+async function doSync(silent){
+  if (!syncReady()) return;
+  setSyncStatus("busy", "Syncing…");
+  try {
+    let r = await sbFetch(SELECT, { method:"GET" });
+    if (r.status === 401 && await sbRefreshToken()) r = await sbFetch(SELECT, { method:"GET" });
+    if (!r.ok) throw new Error("Could not read (" + r.status + "). Check the table and its policy.");
+    const rows = await r.json();
+
+    // pull: remote wins when its timestamp is newer
+    const local = new Map(state.tasks.map(t => [t.id, t]));
+    rows.forEach(row => {
+      const rt = new Date(row.updated).getTime();
+      const mine = local.get(row.id);
+      if (row.deleted){
+        if (mine && (mine.updated || 0) <= rt) state.tasks = state.tasks.filter(t => t.id !== row.id);
+        return;
+      }
+      if (!mine){
+        const buried = state.tomb.find(x => x.id === row.id);
+        if (buried && buried.updated >= rt) return;
+        state.tasks.push(Object.assign({}, row.data, { id: row.id, updated: rt }));
+      } else if (rt > (mine.updated || 0)){
+        Object.assign(mine, row.data, { id: row.id, updated: rt });
+      }
+    });
+
+    // push: anything newer here than there
+    const remote = new Map(rows.map(x => [x.id, new Date(x.updated).getTime()]));
+    const payload = [];
+    state.tasks.forEach(t => {
+      const rt = remote.get(t.id);
+      if (rt === undefined || (t.updated || 0) > rt){
+        payload.push({ id:t.id, user_id:sync.uid, data:t, updated:new Date(t.updated || Date.now()).toISOString(), deleted:false });
+      }
+    });
+    state.tomb.forEach(x => {
+      const rt = remote.get(x.id);
+      if (rt === undefined || x.updated > rt){
+        payload.push({ id:x.id, user_id:sync.uid, data:{}, updated:new Date(x.updated).toISOString(), deleted:true });
+      }
+    });
+    if (payload.length){
+      const p = await sbFetch("/rest/v1/tasks", {
+        method:"POST",
+        headers:{ "Prefer":"resolution=merge-duplicates,return=minimal" },
+        body: JSON.stringify(payload)
+      });
+      if (!p.ok) throw new Error("Could not write (" + p.status + "). Check the insert policy.");
+    }
+
+    sync.last = Date.now();
+    saveSync();
+    Store.save(KEY, { tasks:state.tasks, tomb:state.tomb, theme:state.theme, showDone:state.showDone });
+    render();
+    refreshSyncUI();
+    if (!silent) toast("Synced " + state.tasks.length + " task" + (state.tasks.length === 1 ? "" : "s"));
+  } catch(e){
+    setSyncStatus("err", e.message);
+    if (!silent) toast(e.message);
+  }
+}
+function queueSync(){
+  if (!syncReady()) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => doSync(true), 4000);
+}
+function openSync(){
+  $("sbUrl").value = sync.url || "";
+  $("sbKey").value = sync.key || "";
+  $("sbEmail").value = sync.email || "";
+  refreshSyncUI();
+  $("sheet").classList.add("on");
+}
+function closeSync(){ $("sheet").classList.remove("on"); }
+
+/* ============================================================
    THEME · IMPORT/EXPORT · TOAST
    ============================================================ */
 function applyTheme(){
@@ -1370,12 +1918,29 @@ function applyTheme(){
   $("themeBtn").textContent = state.theme === "dark" ? "Light mode" : "Dark mode";
 }
 let toastTimer = null;
-function toast(msg){
+let undoAction = null;
+function toast(msg, undoFn){
   const el = $("toast");
-  el.textContent = msg;
+  $("toastMsg").textContent = msg;
+  const btn = $("toastUndo");
+  undoAction = undoFn || null;
+  btn.hidden = !undoFn;
   el.classList.add("on");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove("on"), 1900);
+  toastTimer = setTimeout(hideToast, undoFn ? 7000 : 1900);
+}
+function hideToast(){
+  $("toast").classList.remove("on");
+  undoAction = null;
+}
+function runUndo(){
+  if (!undoAction) return;
+  const fn = undoAction;
+  undoAction = null;
+  fn();
+  persist(); render();
+  hideToast();
+  toast("Undone");
 }
 function exportJSON(){
   const blob = new Blob([JSON.stringify({ tasks: state.tasks, exported: new Date().toISOString() }, null, 2)], {type:"application/json"});
@@ -1399,9 +1964,9 @@ function importJSON(file){
         if (!t || !t.title) return;
         if (have.has(t.id)) return;
         state.tasks.push(Object.assign({
-          id: uid(), due:null, time:null, priority:2, project:null,
+          id: uid(), due:null, time:null, priority:2, project:null, repeat:null,
           notes:"", subs:[], done:false, completed:null, created:Date.now()
-        }, t));
+        }, t, { updated: Date.now() }));
         added++;
       });
       persist(); render();
@@ -1418,17 +1983,19 @@ function importJSON(file){
    ============================================================ */
 function loadSamples(){
   const n = new Date();
-  const mk = (title, off, time, prio, proj, subs) => ({
+  const mk = (title, off, time, prio, proj, subs, repeat) => ({
     id: uid(), title, due: off === null ? null : key(addDays(n, off)), time: time || null,
-    priority: prio, project: proj, notes: "", subs: (subs||[]).map(s => ({id:uid(), title:s, done:false})),
-    done:false, completed:null, created: Date.now() - Math.random()*1e6
+    priority: prio, project: proj, repeat: repeat || null, notes: "",
+    subs: (subs||[]).map(s => ({id:uid(), title:s, done:false})),
+    done:false, completed:null, created: Date.now() - Math.random()*1e6, updated: Date.now()
   });
   state.tasks = [
     mk("Submit remaining syllabi for transfer credit", -1, null, 1, "transfer", ["Export PDFs","Fill the form","Email the advisor"]),
-    mk("Algorithms problem set 3", 0, "23:59", 1, "classes"),
+    mk("Algorithms problem set", 0, "23:59", 1, "classes", null, {unit:"week", n:1, dow:n.getDay()}),
     mk("Reply to the recruiter email", 0, "17:00", 2, "apps"),
     mk("Read chapter 4 before lecture", 1, "09:00", 2, "classes"),
     mk("Ship the landing page to Vercel", 2, null, 1, "side-project", ["Fix mobile nav","Hook up the form","Point the domain"]),
+    mk("Stand-up notes", 1, "10:00", 3, "side-project", null, {unit:"weekday", n:1, dow:null}),
     mk("Coffee chat with the club president", 3, "15:00", 3, "networking"),
     mk("Draft the résumé bullet points", 5, null, 2, "apps"),
     mk("Register for fall classes", 9, "10:00", 1, "classes"),
@@ -1466,6 +2033,37 @@ function bind(){
   $("importBtn").onclick = () => $("fileInput").click();
   $("fileInput").onchange = e => { if (e.target.files[0]) importJSON(e.target.files[0]); e.target.value = ""; };
 
+  $("toastUndo").onclick = runUndo;
+
+  // command palette
+  $("palInput").addEventListener("input", () => { palIdx = 0; renderPal(); });
+  $("palInput").addEventListener("keydown", e => {
+    if (e.key === "ArrowDown"){ e.preventDefault(); palMove(1); }
+    else if (e.key === "ArrowUp"){ e.preventDefault(); palMove(-1); }
+    else if (e.key === "Enter"){ e.preventDefault(); palRun(palIdx); }
+    else if (e.key === "Escape"){ e.preventDefault(); palClose(); }
+  });
+  $("pal").addEventListener("mousedown", e => { if (e.target === $("pal")) palClose(); });
+
+  // sync sheet
+  $("syncBtn").onclick = openSync;
+  $("sheetClose").onclick = closeSync;
+  $("sheet").addEventListener("mousedown", e => { if (e.target === $("sheet")) closeSync(); });
+  $("sbSignIn").onclick  = () => sbAuth("in");
+  $("sbSignUp").onclick  = () => sbAuth("up");
+  $("sbSyncNow").onclick = () => {
+    sync.url = $("sbUrl").value.trim();
+    sync.key = $("sbKey").value.trim();
+    saveSync();
+    syncReady() ? doSync(false) : setSyncStatus("err", "Sign in first");
+  };
+  $("sbSignOut").onclick = sbSignOut;
+  $("sqlCopy").onclick = () => {
+    const txt = $("sqlBlock").textContent;
+    if (navigator.clipboard) navigator.clipboard.writeText(txt).then(() => toast("SQL copied"), () => toast("Select and copy manually"));
+    else toast("Select and copy manually");
+  };
+
   $("railBtn").onclick = () => $("rail").classList.toggle("on");
   $("rail").addEventListener("click", e => {
     if (window.innerWidth <= 820 && e.target.closest(".nav-item, .proj-item")) $("rail").classList.remove("on");
@@ -1474,8 +2072,19 @@ function bind(){
   document.addEventListener("keydown", e => {
     const ae = document.activeElement;
     const typing = !!ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName);
+
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k"){
+      e.preventDefault();
+      $("pal").classList.contains("on") ? palClose() : palOpen();
+      return;
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z" && undoAction && !typing){
+      e.preventDefault(); runUndo(); return;
+    }
     if (e.key === "Escape"){
-      if (state.openId) closeDrawer();
+      if ($("pal").classList.contains("on")) palClose();
+      else if ($("sheet").classList.contains("on")) closeSync();
+      else if (state.openId) closeDrawer();
       else { $("rail").classList.remove("on"); if (ae && ae.blur) ae.blur(); }
       return;
     }
@@ -1484,21 +2093,38 @@ function bind(){
     if (e.key === "n" || e.key === "N"){ e.preventDefault(); $("composer").focus(); }
   });
 
+  window.addEventListener("focus", () => { if (syncReady()) doSync(true); });
+
   bindDrawer();
 }
 
 (async function init(){
-  const saved = await Store.load();
+  const saved = await Store.load(KEY);
   if (saved){
-    state.tasks   = Array.isArray(saved.tasks) ? saved.tasks : [];
-    state.theme   = saved.theme === "light" ? "light" : "dark";
+    state.tasks    = Array.isArray(saved.tasks) ? saved.tasks : [];
+    state.tomb     = Array.isArray(saved.tomb) ? saved.tomb : [];
+    state.theme    = saved.theme === "light" ? "light" : "dark";
     state.showDone = !!saved.showDone;
   }
-  state.tasks.forEach(t => { t.subs = t.subs || []; t.priority = t.priority || 2; });
+  state.tasks.forEach(t => {
+    t.subs = t.subs || [];
+    t.priority = t.priority || 2;
+    t.repeat = t.repeat || null;
+    t.updated = t.updated || t.created || Date.now();
+  });
+
+  const s = await Store.load(SKEY);
+  if (s) sync = Object.assign(sync, s);
+
   applyTheme();
   bind();
   renderParse();
   render();
+  refreshSyncUI();
+  if (syncReady()) doSync(true);
+
+  // periodic sync while the tab is open
+  setInterval(() => { if (syncReady()) doSync(true); }, 120000);
 
   // roll the day over if the tab stays open past midnight
   let lastDay = todayKey();
